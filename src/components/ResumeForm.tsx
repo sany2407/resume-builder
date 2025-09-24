@@ -18,6 +18,7 @@ interface PersonalInfo {
   address: string;
   linkedIn?: string;
   github?: string;
+  professionalTitle?: string;
 }
 
 interface Experience {
@@ -47,7 +48,8 @@ export default function ResumeForm() {
     phone: '',
     address: '',
     linkedIn: '',
-    github: ''
+    github: '',
+    professionalTitle: ''
   });
 
   const [summary, setSummary] = useState('');
@@ -84,7 +86,8 @@ export default function ResumeForm() {
           phone: personalInfo.phone,
           address: personalInfo.address,
           linkedIn: personalInfo.linkedIn,
-          github: personalInfo.github
+          github: personalInfo.github,
+          professionalTitle: personalInfo.professionalTitle
         },
         summary,
         experience: cleanExperiences,
@@ -151,6 +154,21 @@ export default function ResumeForm() {
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="(555) 123-4567"
           />
+        </div>
+        <div className="md:col-span-2">
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Professional Title
+          </label>
+          <input
+            type="text"
+            value={personalInfo.professionalTitle}
+            onChange={(e) => setPersonalInfo({ ...personalInfo, professionalTitle: e.target.value })}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="e.g., Software Developer, Full Stack Developer, DevOps Engineer"
+          />
+          <p className="text-xs text-gray-500 mt-1">
+            This will appear below your name to help recruiters quickly identify your target role.
+          </p>
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">

@@ -54,7 +54,7 @@ export default function TemplateSelectionPage() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Choose Your Resume Template</h1>
               <p className="mt-2 text-gray-600">
-                Select a professional template for <span className="font-semibold">{resumeData.personalInfo.name}</span>'s resume
+                Select a professional template for <span className="font-semibold">{resumeData.personalInfo.name}</span>&apos;s resume
               </p>
             </div>
             <button
