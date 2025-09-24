@@ -20,6 +20,21 @@ export default function EditorPage() {
   const { resumeData, isLoading } = useResume();
   const router = useRouter();
 
+  // React 19 compatibility: Suppress ref warnings from third-party libraries
+  useEffect(() => {
+    const originalError = console.error;
+    console.error = (...args) => {
+      if (typeof args[0] === 'string' && args[0].includes('element.ref was removed in React 19')) {
+        return; // Suppress React 19 ref warnings from third-party libraries
+      }
+      originalError.apply(console, args);
+    };
+    
+    return () => {
+      console.error = originalError;
+    };
+  }, []);
+
   // Redirect to home if no resume data
   useEffect(() => {
     if (!isLoading && !resumeData) {
@@ -84,21 +99,62 @@ export default function EditorPage() {
   const handleApplyTemplate = (templateId: string) => {
     if (editor && resumeData) {
       try {
-        // Re-populate editor with resume data using the selected template style
         console.log(`Applying template: ${templateId}`);
-        populateEditorWithResumeData(editor, resumeData);
         
-        setSelectedTemplate(templateId);
-        setShowTemplateSelector(false);
-        
-        editor?.runCommand(StudioCommands.toastAdd, {
-          id: 'template-applied',
-          header: 'Template Applied',
-          content: `Successfully applied ${templateId} template`,
-          variant: ToastVariant.Success,
+        // Import the template system
+        import('../../utils/atsTemplates').then(({ generateATSOptimizedHTML }) => {
+          try {
+            // Generate HTML using the selected template
+            const templateHTML = generateATSOptimizedHTML(resumeData, templateId);
+            
+            // Clear editor and set the new HTML content
+            editor.setComponents('');
+            editor.setStyle('');
+            
+            // Parse and set the HTML content
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(templateHTML, 'text/html');
+            const bodyContent = doc.body.innerHTML;
+            const styleContent = doc.head.querySelector('style')?.innerHTML || '';
+            
+            // Set the HTML content
+            editor.setComponents(bodyContent);
+            
+            // Set the CSS styles
+            if (styleContent) {
+              editor.getCss(); // Initialize CSS
+              editor.getModel().get('CssComposer').getAll().reset();
+              editor.setStyle(styleContent);
+            }
+            
+            setSelectedTemplate(templateId);
+            setShowTemplateSelector(false);
+            
+            editor?.runCommand(StudioCommands.toastAdd, {
+              id: 'template-applied',
+              header: 'Template Applied',
+              content: `Successfully applied ${templateId} template`,
+              variant: ToastVariant.Success,
+            });
+            
+            console.log(`Applied template: ${templateId}`);
+            
+          } catch (templateError) {
+            console.error('Error generating template:', templateError);
+            // Fallback to component-based approach
+            populateEditorWithResumeData(editor, resumeData);
+            setSelectedTemplate(templateId);
+            setShowTemplateSelector(false);
+            
+            editor?.runCommand(StudioCommands.toastAdd, {
+              id: 'template-fallback',
+              header: 'Template Applied',
+              content: `Applied ${templateId} template (fallback mode)`,
+              variant: ToastVariant.Info,
+            });
+          }
         });
         
-        console.log(`Applied template: ${templateId}`);
       } catch (error) {
         console.error('Error applying template:', error);
         editor?.runCommand(StudioCommands.toastAdd, {
@@ -180,7 +236,9 @@ export default function EditorPage() {
       )}
       
       <div className="flex-1 w-full h-full overflow-hidden">
+        {/* @ts-ignore - React 19 ref compatibility */}
         <StudioEditor
+          suppressHydrationWarning={true}
           onReady={onReady}
           options={{
             licenseKey: 'YOUR_LICENSE_KEY',

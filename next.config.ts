@@ -9,6 +9,14 @@ const nextConfig: NextConfig = {
     }
     return config;
   },
+  // Suppress React 19 ref warnings from third-party libraries
+  experimental: {
+    suppressHydrationWarning: true,
+  },
+  // Add custom webpack configuration for React 19 compatibility
+  env: {
+    REACT_19_COMPAT: 'true',
+  },
 };
 
 export default nextConfig;

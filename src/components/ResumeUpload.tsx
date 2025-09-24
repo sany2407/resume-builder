@@ -51,6 +51,9 @@ export default function ResumeUpload({ onUploadComplete }: ResumeUploadProps) {
       return;
     }
 
+    // Clear any existing errors
+    setError(null);
+
     console.log('Starting file upload:', { name: file.name, type: file.type, size: file.size });
 
     // Validate file type
@@ -185,22 +188,33 @@ export default function ResumeUpload({ onUploadComplete }: ResumeUploadProps) {
     e.preventDefault();
     setIsDragging(false);
     
+    // Prevent processing if already uploading
+    if (isLoading) return;
+    
     const files = Array.from(e.dataTransfer.files);
     if (files.length > 0) {
       handleFileUpload(files[0]);
     }
-  }, [handleFileUpload]);
+  }, [handleFileUpload, isLoading]);
 
   const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    // Prevent processing if already uploading
+    if (isLoading) {
+      e.target.value = ''; // Clear the input
+      return;
+    }
+    
     const files = e.target.files;
     if (files && files.length > 0) {
       handleFileUpload(files[0]);
+      e.target.value = ''; // Clear the input after starting upload
     }
-  }, [handleFileUpload]);
+  }, [handleFileUpload, isLoading]);
 
   const handleBrowseClick = useCallback(() => {
+    if (isLoading) return; // Prevent clicking if already uploading
     fileInputRef.current?.click();
-  }, []);
+  }, [isLoading]);
 
   return (
     <div className="w-full max-w-2xl mx-auto p-6">
@@ -263,7 +277,10 @@ export default function ResumeUpload({ onUploadComplete }: ResumeUploadProps) {
               
               <button 
                 className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200"
-                onClick={handleBrowseClick}
+                onClick={(e) => {
+                  e.stopPropagation(); // Prevent event bubbling to container
+                  handleBrowseClick();
+                }}
               >
                 Browse Files
               </button>

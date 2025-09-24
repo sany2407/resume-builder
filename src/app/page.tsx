@@ -1,89 +1,21 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import ResumeUpload from '../components/ResumeUpload';
+import ResumeForm from '../components/ResumeForm';
 import Link from 'next/link';
 import { useResume } from '../contexts/ResumeContext';
 
 export default function HomePage() {
   const { resumeData } = useResume();
+  const [selectedOption, setSelectedOption] = useState<'upload' | 'create' | null>(null);
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            AI-Powered ATS-Friendly Resume Builder
-          </h1>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
-            Upload your existing resume and let our AI transform it into a beautiful, 
-            ATS-optimized document that passes through applicant tracking systems.
-          </p>
-          <div className="mt-4 flex justify-center">
-            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-              ATS-Optimized Templates
-            </span>
-          </div>
-        </div>
-
-        {/* Main Content */}
-        <div className="max-w-4xl mx-auto">
-          {!resumeData ? (
-            <div className="bg-white rounded-2xl shadow-xl p-8">
-              <h2 className="text-2xl font-semibold text-center text-gray-800 mb-8">
-                Get Started
-              </h2>
-              <ResumeUpload />
-              
-              {/* Features */}
-              <div className="mt-12 grid md:grid-cols-4 gap-6">
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">AI-Powered Parsing</h3>
-                  <p className="text-sm text-gray-600">Advanced AI extracts and structures your resume content automatically.</p>
-                </div>
-                
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">ATS-Optimized</h3>
-                  <p className="text-sm text-gray-600">Templates designed to pass through applicant tracking systems.</p>
-                </div>
-                
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">Visual Editor</h3>
-                  <p className="text-sm text-gray-600">Customize your resume with our powerful GrapeJS editor.</p>
-                </div>
-                
-                <div className="text-center p-4">
-                  <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center mx-auto mb-3">
-                    <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-semibold text-gray-800 mb-2">Export Ready</h3>
-                  <p className="text-sm text-gray-600">Download your resume as PDF or HTML for any application.</p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            /* Resume Loaded State */
+  // If resume data exists, show success state
+  if (resumeData) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
             <div className="bg-white rounded-2xl shadow-xl p-8 text-center">
               <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -92,11 +24,11 @@ export default function HomePage() {
               </div>
               
               <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-                Resume Successfully Processed!
+                Resume Successfully Created!
               </h2>
               
               <p className="text-gray-600 mb-6">
-                Your resume has been parsed and is ready for editing with ATS-friendly templates. 
+                Your resume is ready for editing with ATS-friendly templates. 
                 You can now customize it in our visual editor.
               </p>
               
@@ -114,9 +46,175 @@ export default function HomePage() {
                     onClick={() => window.location.reload()}
                     className="text-blue-600 hover:text-blue-700 underline"
                   >
-                    upload a different resume
+                    start over
                   </button>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
+            AI-Powered ATS-Friendly Resume Builder
+          </h1>
+          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
+            Create a professional, ATS-optimized resume that passes through applicant tracking systems.
+          </p>
+          <div className="mt-4 flex justify-center">
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+              <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+              </svg>
+              ATS-Optimized Templates
+            </span>
+          </div>
+        </div>
+
+        {/* Main Content */}
+        <div className="max-w-6xl mx-auto">
+          {!selectedOption ? (
+            /* Option Selection */
+            <div className="grid md:grid-cols-2 gap-8">
+              {/* Upload Existing Resume */}
+              <div 
+                className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-shadow duration-300 border-2 border-transparent hover:border-blue-200"
+                onClick={() => setSelectedOption('upload')}
+              >
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                  </div>
+                  
+                  <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                    Already Have a Resume?
+                  </h2>
+                  
+                  <p className="text-gray-600 mb-6">
+                    Upload your existing resume and let our AI transform it into an ATS-optimized format with enhanced formatting and structure.
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center text-sm text-green-600">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      AI-powered content extraction
+                    </div>
+                    <div className="flex items-center text-sm text-green-600">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Supports PDF, DOC, DOCX, TXT
+                    </div>
+                    <div className="flex items-center text-sm text-green-600">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Instant formatting upgrade
+                    </div>
+                  </div>
+                  
+                  <button className="mt-6 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200">
+                    Upload Resume
+                  </button>
+                </div>
+              </div>
+
+              {/* Create New Resume */}
+              <div 
+                className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-shadow duration-300 border-2 border-transparent hover:border-green-200"
+                onClick={() => setSelectedOption('create')}
+              >
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                    </svg>
+                  </div>
+                  
+                  <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+                    Create New Resume
+                  </h2>
+                  
+                  <p className="text-gray-600 mb-6">
+                    Start from scratch with our guided form. We&apos;ll ask you key questions and build a professional ATS-optimized resume for you.
+                  </p>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-center text-sm text-green-600">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Step-by-step guidance
+                    </div>
+                    <div className="flex items-center text-sm text-green-600">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      Professional templates
+                    </div>
+                    <div className="flex items-center text-sm text-green-600">
+                      <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                      ATS-optimized from start
+                    </div>
+                  </div>
+                  
+                  <button className="mt-6 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200">
+                    Create New
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : selectedOption === 'upload' ? (
+            /* Upload Section */
+            <div className="max-w-3xl mx-auto">
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="flex items-center mb-6">
+                  <button 
+                    onClick={() => setSelectedOption(null)}
+                    className="mr-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                  </button>
+                  <h2 className="text-2xl font-semibold text-gray-800">
+                    Upload Your Existing Resume
+                  </h2>
+                </div>
+                <ResumeUpload />
+              </div>
+            </div>
+          ) : (
+            /* Create New Section */
+            <div className="max-w-4xl mx-auto">
+              <div className="bg-white rounded-2xl shadow-xl p-8">
+                <div className="flex items-center mb-6">
+                  <button 
+                    onClick={() => setSelectedOption(null)}
+                    className="mr-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                  </button>
+                  <h2 className="text-2xl font-semibold text-gray-800">
+                    Create Your Resume
+                  </h2>
+                </div>
+                <ResumeForm />
               </div>
             </div>
           )}

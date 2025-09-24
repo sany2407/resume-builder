@@ -4,37 +4,117 @@ import { ResumeData } from '../contexts/ResumeContext';
 // Define GrapeJS component types for resume sections
 export const setupResumeComponents = (editor: Editor) => {
   
-  // Header Component
+  // Header Component with direct editing
   editor.DomComponents.addType('resume-header', {
     model: {
       defaults: {
         tagName: 'div',
         classes: ['resume-header'],
-        droppable: false,
-        traits: [
-          { type: 'text', name: 'name', label: 'Full Name' },
-          { type: 'text', name: 'email', label: 'Email' },
-          { type: 'text', name: 'phone', label: 'Phone' },
-          { type: 'text', name: 'address', label: 'Address' },
-          { type: 'text', name: 'linkedin', label: 'LinkedIn' },
-          { type: 'text', name: 'github', label: 'GitHub' },
-        ],
+        droppable: true,
+        editable: true,
         style: {
           'text-align': 'center',
           'margin-bottom': '30px',
           'padding-bottom': '20px',
-          'border-bottom': '2px solid #2563eb'
+          'border-bottom': '2px solid #2563eb',
+          'cursor': 'pointer',
+          'position': 'relative'
+        },
+        attributes: {
+          'data-gjs-highlightable': 'true',
+          'data-gjs-hoverable': 'true'
         }
       },
       
       init() {
-        this.on('change:attributes', this.updateContent);
         this.updateContent();
+        
+        // Add click handler for inline editing
+        this.view?.on('click', () => {
+          this.enableInlineEditing();
+        });
+      },
+      
+      enableInlineEditing() {
+        const element = this.view?.el;
+        if (!element) return;
+        
+        // Create editable form overlay
+        const overlay = document.createElement('div');
+        overlay.className = 'inline-edit-overlay';
+        overlay.style.cssText = `
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          background: white;
+          border: 2px solid #3b82f6;
+          border-radius: 8px;
+          padding: 20px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+          z-index: 1000;
+        `;
+        
+        const attrs = this.getAttributes();
+        overlay.innerHTML = `
+          <h4 style="margin: 0 0 15px 0; color: #1f2937; font-size: 18px;">Edit Header Information</h4>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <input type="text" id="edit-name" placeholder="Full Name" value="${attrs.name || ''}" 
+                   style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
+            <input type="email" id="edit-email" placeholder="Email" value="${attrs.email || ''}" 
+                   style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
+            <input type="tel" id="edit-phone" placeholder="Phone" value="${attrs.phone || ''}" 
+                   style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
+            <input type="text" id="edit-address" placeholder="Address" value="${attrs.address || ''}" 
+                   style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
+            <input type="url" id="edit-linkedin" placeholder="LinkedIn URL" value="${attrs.linkedin || ''}" 
+                   style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
+            <input type="url" id="edit-github" placeholder="GitHub URL" value="${attrs.github || ''}" 
+                   style="padding: 8px; border: 1px solid #d1d5db; border-radius: 4px; font-size: 14px;">
+          </div>
+          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+            <button id="cancel-edit" style="padding: 8px 16px; background: #6b7280; color: white; border: none; border-radius: 4px; cursor: pointer;">Cancel</button>
+            <button id="save-edit" style="padding: 8px 16px; background: #3b82f6; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>
+          </div>
+        `;
+        
+        element.appendChild(overlay);
+        
+        // Handle save
+        overlay.querySelector('#save-edit')?.addEventListener('click', () => {
+          const newAttrs = {
+            name: (overlay.querySelector('#edit-name') as HTMLInputElement)?.value || '',
+            email: (overlay.querySelector('#edit-email') as HTMLInputElement)?.value || '',
+            phone: (overlay.querySelector('#edit-phone') as HTMLInputElement)?.value || '',
+            address: (overlay.querySelector('#edit-address') as HTMLInputElement)?.value || '',
+            linkedin: (overlay.querySelector('#edit-linkedin') as HTMLInputElement)?.value || '',
+            github: (overlay.querySelector('#edit-github') as HTMLInputElement)?.value || ''
+          };
+          
+          this.setAttributes(newAttrs);
+          this.updateContent();
+          overlay.remove();
+        });
+        
+        // Handle cancel
+        overlay.querySelector('#cancel-edit')?.addEventListener('click', () => {
+          overlay.remove();
+        });
+        
+        // Close on click outside
+        setTimeout(() => {
+          document.addEventListener('click', function closeOverlay(e) {
+            if (!overlay.contains(e.target as Node)) {
+              overlay.remove();
+              document.removeEventListener('click', closeOverlay);
+            }
+          });
+        }, 100);
       },
       
       updateContent() {
         const attrs = this.getAttributes();
-        const name = attrs.name || 'Your Name';
+        const name = attrs.name || 'Click to edit your name';
         const email = attrs.email || '';
         const phone = attrs.phone || '';
         const address = attrs.address || '';
@@ -43,16 +123,40 @@ export const setupResumeComponents = (editor: Editor) => {
         
         const contactInfo = [email, phone, address, linkedin, github]
           .filter(item => item)
-          .join(' • ');
+          .join(' • ') || 'Click to add contact information';
         
         this.set('content', `
-          <div class="name" data-gjs-type="text" data-gjs-editable="true" style="font-size: 2.5rem; font-weight: bold; color: #1e40af; margin-bottom: 10px;">
+          <div class="name" style="font-size: 2.5rem; font-weight: bold; color: #1e40af; margin-bottom: 10px; cursor: pointer;">
             ${name}
           </div>
-          <div class="contact-info" data-gjs-type="text" data-gjs-editable="true" style="font-size: 0.95rem; color: #666;">
+          <div class="contact-info" style="font-size: 0.95rem; color: #666; cursor: pointer;">
             ${contactInfo}
           </div>
+          <div style="position: absolute; top: 5px; right: 5px; background: rgba(59, 130, 246, 0.8); color: white; padding: 4px 8px; border-radius: 4px; font-size: 12px; opacity: 0; transition: opacity 0.3s;">✏️ Click to edit</div>
         `);
+      }
+    },
+    
+    view: {
+      events: {
+        mouseenter: 'showEditHint',
+        mouseleave: 'hideEditHint',
+        click: 'handleClick'
+      },
+      
+      showEditHint() {
+        const hint = this.el.querySelector('div[style*="position: absolute"]');
+        if (hint) (hint as HTMLElement).style.opacity = '1';
+      },
+      
+      hideEditHint() {
+        const hint = this.el.querySelector('div[style*="position: absolute"]');
+        if (hint) (hint as HTMLElement).style.opacity = '0';
+      },
+      
+      handleClick(e: Event) {
+        e.stopPropagation();
+        this.model.enableInlineEditing();
       }
     }
   });
