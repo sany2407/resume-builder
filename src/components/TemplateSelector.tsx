@@ -174,9 +174,9 @@ function TemplateCard({ template, isSelected, onSelect, onApply }: TemplateCardP
               e.stopPropagation();
               onApply();
             }}
-            className="px-3 py-1.5 text-xs font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors"
+            className="px-4 py-2 text-sm font-medium bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors shadow-sm"
           >
-            Apply
+            Use This Template
           </button>
         </div>
       </div>

@@ -41,6 +41,8 @@ export interface ResumeData {
 interface ResumeContextType {
   resumeData: ResumeData | null;
   setResumeData: (data: ResumeData) => void;
+  selectedTemplate: string | null;
+  setSelectedTemplate: (template: string) => void;
   isLoading: boolean;
   setIsLoading: (loading: boolean) => void;
   error: string | null;
@@ -51,6 +53,7 @@ const ResumeContext = createContext<ResumeContextType | undefined>(undefined);
 
 export function ResumeProvider({ children }: { children: ReactNode }) {
   const [resumeData, setResumeData] = useState<ResumeData | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,6 +62,8 @@ export function ResumeProvider({ children }: { children: ReactNode }) {
       value={{
         resumeData,
         setResumeData,
+        selectedTemplate,
+        setSelectedTemplate,
         isLoading,
         setIsLoading,
         error,

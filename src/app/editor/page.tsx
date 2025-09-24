@@ -15,10 +15,27 @@ import TemplateSelector from '../../components/TemplateSelector';
 
 export default function EditorPage() {
   const [editor, setEditor] = useState<Editor>();
-  const [selectedTemplate, setSelectedTemplate] = useState('ats-clean');
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [showTemplateSelector, setShowTemplateSelector] = useState(false);
-  const { resumeData, isLoading } = useResume();
+  const { resumeData, selectedTemplate: globalTemplate, isLoading } = useResume();
   const router = useRouter();
+  
+  // Initialize selectedTemplate from URL parameters or global context
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const templateFromUrl = urlParams.get('template');
+    
+    if (templateFromUrl) {
+      console.log('Setting template from URL:', templateFromUrl);
+      setSelectedTemplate(templateFromUrl);
+    } else if (globalTemplate) {
+      console.log('Setting template from global context:', globalTemplate);
+      setSelectedTemplate(globalTemplate);
+    } else {
+      console.log('Setting default template: ats-clean');
+      setSelectedTemplate('ats-clean');
+    }
+  }, [globalTemplate]);
 
   // React 19 compatibility: Suppress ref warnings from third-party libraries
   useEffect(() => {
@@ -35,12 +52,16 @@ export default function EditorPage() {
     };
   }, []);
 
-  // Redirect to home if no resume data
+  // Redirect based on data availability
   useEffect(() => {
-    if (!isLoading && !resumeData) {
-      router.push('/');
+    if (!isLoading) {
+      if (!resumeData) {
+        router.push('/'); // No resume data, go to upload
+      } else if (!globalTemplate && !new URLSearchParams(window.location.search).get('template')) {
+        router.push('/template-selection'); // Have resume data but no template selected
+      }
     }
-  }, [resumeData, isLoading, router]);
+  }, [resumeData, globalTemplate, isLoading, router]);
 
   const onReady = (editor: Editor) => {
     console.log('Editor loaded', editor);
@@ -48,13 +69,48 @@ export default function EditorPage() {
     
     // Setup custom resume components
     setupResumeComponents(editor);
-    
-    // If we have resume data, populate the editor
-    if (resumeData) {
-      console.log('Populating editor with resume data:', resumeData);
-      populateEditorWithResumeData(editor, resumeData);
-    }
   };
+  
+  // Apply template when editor and selectedTemplate are both ready
+  useEffect(() => {
+    if (editor && resumeData && selectedTemplate) {
+      console.log('Applying template to editor:', selectedTemplate);
+      
+      // Apply the selected template
+      import('../../utils/atsTemplates').then(({ generateATSOptimizedHTML }) => {
+        try {
+          const templateHTML = generateATSOptimizedHTML(resumeData, selectedTemplate);
+          
+          // Parse and set the HTML content
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(templateHTML, 'text/html');
+          const bodyContent = doc.body.innerHTML;
+          const styleContent = doc.head.querySelector('style')?.innerHTML || '';
+          
+          // Clear existing content first
+          editor.setComponents('');
+          editor.setStyle('');
+          
+          // Set the HTML content
+          editor.setComponents(bodyContent);
+          
+          // Set the CSS styles
+          if (styleContent) {
+            editor.getCss(); // Initialize CSS
+            editor.getModel().get('CssComposer').getAll().reset();
+            editor.setStyle(styleContent);
+          }
+          
+          console.log(`Applied template: ${selectedTemplate}`);
+          
+        } catch (templateError) {
+          console.error('Error applying template on load:', templateError);
+          // Fallback to component-based approach
+          populateEditorWithResumeData(editor, resumeData);
+        }
+      });
+    }
+  }, [editor, resumeData, selectedTemplate]);
 
   const showToast = (id: string) =>
     editor?.runCommand(StudioCommands.toastAdd, {

@@ -138,13 +138,13 @@ export default function ResumeUpload({ onUploadComplete }: ResumeUploadProps) {
       console.log('Parsed result:', { success: result?.success, hasData: !!(result?.data) });
       
       if (result && result.success && result.data) {
-        console.log('Setting resume data and navigating to editor');
+        console.log('Setting resume data and navigating to template selection');
         setResumeData(result.data);
         
-        // Show success message briefly before navigating
+        // Show success message briefly before navigating to template selection
         setTimeout(() => {
           onUploadComplete?.();
-          router.push('/editor');
+          router.push('/template-selection');
         }, 1500);
       } else {
         const errorMessage = result && typeof result === 'object' && result.error 
@@ -334,7 +334,7 @@ export default function ResumeUpload({ onUploadComplete }: ResumeUploadProps) {
             </svg>
             <p className="text-green-700 font-medium">Success!</p>
           </div>
-          <p className="text-green-600 mt-1">Resume parsed successfully. Redirecting to editor...</p>
+          <p className="text-green-600 mt-1">Resume parsed successfully. Redirecting to template selection...</p>
         </div>
       )}
     </div>
