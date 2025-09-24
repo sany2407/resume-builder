@@ -58,6 +58,21 @@ async function parseResumeWithGemini(resumeText: string) {
     - duration: How long the project took or when it was completed
     - technologies: Array of technologies/tools used (extract from description if not explicitly listed)
     - links: Array of any URLs mentioned for the project (GitHub, live demo, etc.)
+    
+    For achievements, extract:
+    - Awards, honors, recognitions, competitions won
+    - Publications, patents, certifications of merit
+    - Notable accomplishments or recognitions
+    
+    For languages, extract:
+    - All languages mentioned with proficiency levels
+    - Use standard proficiency terms: "Native", "Fluent", "Conversational", "Basic"
+    - If no proficiency is mentioned, infer from context or use "Conversational" as default
+    
+    For hobbies/interests, extract:
+    - Personal interests, hobbies, activities
+    - Sports, creative pursuits, volunteer work
+    - Any activities that show personality or additional skills
 
     IMPORTANT: Respond with ONLY valid JSON, no markdown formatting, no explanations, no extra text.
 
@@ -107,7 +122,22 @@ async function parseResumeWithGemini(resumeText: string) {
           "issuer": "",
           "date": ""
         }
-      ]
+      ],
+      "achievements": [
+        {
+          "title": "",
+          "description": "",
+          "date": "",
+          "issuer": ""
+        }
+      ],
+      "languages": [
+        {
+          "name": "",
+          "proficiency": ""
+        }
+      ],
+      "hobbies": []
     }
 
     Resume text to parse:
@@ -163,7 +193,10 @@ async function parseResumeWithGemini(resumeText: string) {
         education: [],
         skills: [],
         projects: [],
-        certifications: []
+        certifications: [],
+        achievements: [],
+        languages: [],
+        hobbies: []
       };
     }
     
@@ -186,6 +219,9 @@ async function parseResumeWithGemini(resumeText: string) {
     parsedData.skills = parsedData.skills || [];
     parsedData.projects = parsedData.projects || [];
     parsedData.certifications = parsedData.certifications || [];
+    parsedData.achievements = parsedData.achievements || [];
+    parsedData.languages = parsedData.languages || [];
+    parsedData.hobbies = parsedData.hobbies || [];
     parsedData.summary = parsedData.summary || '';
     
     return parsedData;

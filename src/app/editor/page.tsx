@@ -674,7 +674,7 @@ export default function EditorPage() {
       )}
       
       <div className="flex-1 w-full h-full overflow-hidden">
-        {/* @ts-ignore - React 19 ref compatibility */}
+        {/* @ts-expect-error - React 19 ref compatibility */}
         <StudioEditor
           suppressHydrationWarning={true}
           onReady={onReady}

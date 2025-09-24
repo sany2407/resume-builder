@@ -297,3 +297,63 @@ function extractTechnologiesFromDescription(description: string): string[] {
   
   return extractedTechs.slice(0, 5); // Limit to top 5 technologies
 }
+
+/**
+ * Gets formatted achievements with better structure
+ */
+export function getFormattedAchievements(data: ResumeData): Array<{
+  title: string;
+  description?: string;
+  date?: string;
+  issuer?: string;
+}> {
+  const achievements = data.achievements || [];
+  
+  return achievements.map(achievement => ({
+    title: achievement.title || '',
+    description: achievement.description || '',
+    date: achievement.date || '',
+    issuer: achievement.issuer || '',
+  }));
+}
+
+/**
+ * Gets formatted languages with proficiency levels
+ */
+export function getFormattedLanguages(data: ResumeData): Array<{
+  name: string;
+  proficiency: string;
+}> {
+  const languages = data.languages || [];
+  
+  return languages.map(lang => ({
+    name: lang.name || '',
+    proficiency: lang.proficiency || 'Conversational',
+  }));
+}
+
+/**
+ * Gets formatted hobbies and interests
+ */
+export function getFormattedHobbies(data: ResumeData): string[] {
+  const hobbies = data.hobbies || [];
+  
+  return hobbies.filter(hobby => typeof hobby === 'string' && hobby.trim().length > 0);
+}
+
+/**
+ * Gets formatted certifications with better structure
+ */
+export function getFormattedCertifications(data: ResumeData): Array<{
+  name: string;
+  issuer: string;
+  date: string;
+}> {
+  const certifications = data.certifications || [];
+  
+  return certifications.map(cert => ({
+    name: cert.name || '',
+    issuer: cert.issuer || '',
+    date: cert.date || '',
+  }));
+}

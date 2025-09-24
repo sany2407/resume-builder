@@ -257,6 +257,38 @@ export const atsCleanTemplate: ATSTemplate = {
         `).join('')}
     </div>
     ` : ''}
+
+    ${data.achievements && data.achievements.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Achievements & Awards</div>
+        ${data.achievements.map(achievement => `
+            <div class="achievement-item">
+                <div class="achievement-title">${achievement.title}</div>
+                ${achievement.issuer ? `<div class="issuer">${achievement.issuer}</div>` : ''}
+                ${achievement.date ? `<div class="dates">${achievement.date}</div>` : ''}
+                ${achievement.description ? `<div class="description">${achievement.description}</div>` : ''}
+            </div>
+        `).join('')}
+    </div>
+    ` : ''}
+
+    ${data.languages && data.languages.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Languages</div>
+        <div class="languages-list">
+            ${data.languages.map(lang => `${lang.name} (${lang.proficiency})`).join(', ')}
+        </div>
+    </div>
+    ` : ''}
+
+    ${data.hobbies && data.hobbies.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Interests & Hobbies</div>
+        <div class="hobbies-list">
+            ${data.hobbies.join(', ')}
+        </div>
+    </div>
+    ` : ''}
 </body>
 </html>`
 };
@@ -553,6 +585,37 @@ export const atsTwoColumnTemplate: ATSTemplate = {
                 `).join('')}
             </div>
             ` : ''}
+
+            ${data.achievements && data.achievements.length > 0 ? `
+            <div class="section">
+                <div class="section-title">Achievements</div>
+                ${data.achievements.map(achievement => `
+                    <div class="achievement-item">
+                        <div class="achievement-title">${achievement.title}</div>
+                        ${achievement.issuer ? `<div class="issuer">${achievement.issuer}</div>` : ''}
+                        ${achievement.date ? `<div class="dates">${achievement.date}</div>` : ''}
+                    </div>
+                `).join('')}
+            </div>
+            ` : ''}
+
+            ${data.languages && data.languages.length > 0 ? `
+            <div class="section">
+                <div class="section-title">Languages</div>
+                <div class="languages-list">
+                    ${data.languages.map(lang => `<div class="language-item">${lang.name}: ${lang.proficiency}</div>`).join('')}
+                </div>
+            </div>
+            ` : ''}
+
+            ${data.hobbies && data.hobbies.length > 0 ? `
+            <div class="section">
+                <div class="section-title">Interests</div>
+                <div class="hobbies-list">
+                    ${data.hobbies.join(', ')}
+                </div>
+            </div>
+            ` : ''}
         </div>
     </div>
 </body>
@@ -844,6 +907,38 @@ export const atsModernTemplate: ATSTemplate = {
         `).join('')}
     </div>
     ` : ''}
+
+    ${data.achievements && data.achievements.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Achievements & Awards</div>
+        ${data.achievements.map(achievement => `
+            <div class="achievement-item">
+                <div class="achievement-title">${achievement.title}</div>
+                ${achievement.issuer ? `<div class="issuer">${achievement.issuer}</div>` : ''}
+                ${achievement.date ? `<div class="dates">${achievement.date}</div>` : ''}
+                ${achievement.description ? `<div class="description">${achievement.description}</div>` : ''}
+            </div>
+        `).join('')}
+    </div>
+    ` : ''}
+
+    ${data.languages && data.languages.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Languages</div>
+        <div class="languages-container">
+            ${data.languages.map(lang => `<span class="skill-item">${lang.name} (${lang.proficiency})</span>`).join('')}
+        </div>
+    </div>
+    ` : ''}
+
+    ${data.hobbies && data.hobbies.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Interests & Hobbies</div>
+        <div class="hobbies-list">
+            ${data.hobbies.join(' • ')}
+        </div>
+    </div>
+    ` : ''}
 </body>
 </html>`
 };
@@ -1123,6 +1218,38 @@ export const atsMinimalTemplate: ATSTemplate = {
                 <div class="dates">${cert.date}</div>
             </div>
         `).join('')}
+    </div>
+    ` : ''}
+
+    ${data.achievements && data.achievements.length > 0 ? `
+    <div class="section">
+        <div class="section-title">ACHIEVEMENTS</div>
+        ${data.achievements.map(achievement => `
+            <div class="achievement-item">
+                <div class="achievement-title">${achievement.title}</div>
+                ${achievement.issuer ? `<div class="issuer">${achievement.issuer}</div>` : ''}
+                ${achievement.date ? `<div class="dates">${achievement.date}</div>` : ''}
+                ${achievement.description ? `<div class="description">${achievement.description}</div>` : ''}
+            </div>
+        `).join('')}
+    </div>
+    ` : ''}
+
+    ${data.languages && data.languages.length > 0 ? `
+    <div class="section">
+        <div class="section-title">LANGUAGES</div>
+        <div class="languages-list">
+            ${data.languages.map(lang => `${lang.name} (${lang.proficiency})`).join(' • ')}
+        </div>
+    </div>
+    ` : ''}
+
+    ${data.hobbies && data.hobbies.length > 0 ? `
+    <div class="section">
+        <div class="section-title">INTERESTS</div>
+        <div class="hobbies-list">
+            ${data.hobbies.join(' • ')}
+        </div>
     </div>
     ` : ''}
 </body>
@@ -1452,6 +1579,38 @@ export const atsProfessionalTemplate: ATSTemplate = {
                 <span class="cert-details"> - ${cert.issuer} ${cert.date ? `(${cert.date})` : ''}</span>
             </div>
         `).join('')}
+    </div>
+    ` : ''}
+
+    ${data.achievements && data.achievements.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Achievements & Awards</div>
+        ${data.achievements.map(achievement => `
+            <div class="achievement-item">
+                <div class="achievement-title">${achievement.title}</div>
+                ${achievement.issuer ? `<div class="cert-details">${achievement.issuer}</div>` : ''}
+                ${achievement.date ? `<div class="cert-details">${achievement.date}</div>` : ''}
+                ${achievement.description ? `<div class="project-description">${achievement.description}</div>` : ''}
+            </div>
+        `).join('')}
+    </div>
+    ` : ''}
+
+    ${data.languages && data.languages.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Languages</div>
+        <div class="skills-list">
+            ${data.languages.map(lang => `${lang.name} (${lang.proficiency})`).join(' • ')}
+        </div>
+    </div>
+    ` : ''}
+
+    ${data.hobbies && data.hobbies.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Interests</div>
+        <div class="skills-list">
+            ${data.hobbies.join(' • ')}
+        </div>
     </div>
     ` : ''}
 </body>
@@ -1838,6 +1997,40 @@ export const atsExecutiveTemplate: ATSTemplate = {
                 <div class="cert-details">${cert.issuer} ${cert.date ? `• Earned ${cert.date}` : ''}</div>
             </div>
         `).join('')}
+    </div>
+    ` : ''}
+
+    ${data.achievements && data.achievements.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Awards & Recognition</div>
+        ${data.achievements.map(achievement => `
+            <div class="cert-item">
+                <div class="cert-name">${achievement.title}</div>
+                <div class="cert-details">
+                    ${achievement.issuer ? `${achievement.issuer} ` : ''}
+                    ${achievement.date ? `• ${achievement.date}` : ''}
+                </div>
+                ${achievement.description ? `<div style="margin-top: 6px; font-size: 10pt; color: #4a5568;">${achievement.description}</div>` : ''}
+            </div>
+        `).join('')}
+    </div>
+    ` : ''}
+
+    ${data.languages && data.languages.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Languages</div>
+        <div class="skills-container">
+            ${data.languages.map(lang => `<span class="skill-group">${lang.name} (${lang.proficiency})</span>`).join('')}
+        </div>
+    </div>
+    ` : ''}
+
+    ${data.hobbies && data.hobbies.length > 0 ? `
+    <div class="section">
+        <div class="section-title">Personal Interests</div>
+        <div style="font-size: 11pt; color: #4a5568; line-height: 1.5;">
+            ${data.hobbies.join(' • ')}
+        </div>
     </div>
     ` : ''}
 </body>

@@ -101,6 +101,23 @@ export interface ResumeData {
     date: string;
   }>;
   
+  // Achievements/Awards
+  achievements?: Array<{
+    title: string;
+    description?: string;
+    date?: string;
+    issuer?: string;
+  }>;
+  
+  // Languages
+  languages?: Array<{
+    name: string;
+    proficiency: string; // e.g., "Native", "Fluent", "Conversational", "Basic"
+  }>;
+  
+  // Hobbies and Interests
+  hobbies?: string[];
+  
   // Additional info structure
   additionalInfo?: {
     additional?: Array<{
