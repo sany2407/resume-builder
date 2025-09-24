@@ -225,7 +225,8 @@ export default function EditorPage() {
                 @media print {
                   body {
                     margin: 0;
-                    padding: 0.5in;
+                    padding: 0;
+                    width: 200mm; /* A4 (210mm) minus 2x5mm margins */
                     background: white;
                     -webkit-print-color-adjust: exact;
                     print-color-adjust: exact;
@@ -235,7 +236,7 @@ export default function EditorPage() {
                   
                   @page {
                     size: A4;
-                    margin: 0.5in;
+                    margin: 5mm; /* Minimum margin by default */
                   }
                   
                   /* Hide any remaining editor artifacts */
@@ -249,20 +250,31 @@ export default function EditorPage() {
                     box-shadow: none !important;
                   }
                   
-                  /* Ensure proper spacing */
+                  /* Allow content to split across pages to avoid big gaps */
                   .section {
-                    page-break-inside: avoid;
-                    margin-bottom: 15px;
+                    page-break-inside: auto !important;
+                    break-inside: auto !important;
+                    margin-bottom: 12px;
                   }
                   
-                  /* Prevent widows and orphans */
+                  /* Relax widow/orphan control to allow better pagination */
                   p, li {
-                    orphans: 2;
-                    widows: 2;
+                    orphans: 1;
+                    widows: 1;
+                    page-break-inside: auto !important;
+                    break-inside: auto !important;
                   }
                   
+                  /* Let headings break normally if at page end */
                   h1, h2, h3, h4, h5, h6 {
-                    page-break-after: avoid;
+                    page-break-after: auto !important;
+                    break-after: auto !important;
+                  }
+                  
+                  /* Generic containers can break inside to reduce gaps */
+                  div, section, article {
+                    page-break-inside: auto !important;
+                    break-inside: auto !important;
                   }
                 }
                 
@@ -327,182 +339,132 @@ export default function EditorPage() {
   const exportToPDF = async () => {
     if (editor && !isExportingPDF) {
       setIsExportingPDF(true);
-      
       try {
-        console.log('Exporting resume to PDF...');
-        
-        // Show loading toast
         editor?.runCommand(StudioCommands.toastAdd, {
           id: 'pdf-generating',
           header: 'Generating PDF',
           content: 'Please wait while we generate your PDF...',
           variant: ToastVariant.Info,
         });
-        
-        // Dynamically import html2pdf
+
         const html2pdf = (await import('html2pdf.js')).default;
-        
-        // Get the editor canvas frame for exact content
+
         const editorFrame = editor.Canvas.getFrameEl();
         const editorDoc = editorFrame.contentDocument || editorFrame.contentWindow?.document;
-        
-        if (!editorDoc) {
-          throw new Error('Unable to access editor document');
-        }
-        
-        // Get the actual rendered HTML and CSS from the editor canvas
+        if (!editorDoc) throw new Error('Unable to access editor document');
+
         const editorBody = editorDoc.body;
         const editorStyles = Array.from(editorDoc.styleSheets)
-          .map(styleSheet => {
+          .map((styleSheet) => {
             try {
               return Array.from(styleSheet.cssRules)
-                .map(rule => rule.cssText)
+                .map((rule) => rule.cssText)
                 .join('\n');
             } catch (e) {
               return '';
             }
           })
           .join('\n');
-        
-        // Clone the editor content and clean it
+
         const clonedContent = editorBody.cloneNode(true) as HTMLElement;
-        
-        // Remove GrapesJS editor artifacts
+
         const removeEditorElements = (element: HTMLElement) => {
-          Array.from(element.querySelectorAll('*')).forEach(el => {
+          Array.from(element.querySelectorAll('*')).forEach((el) => {
             const htmlEl = el as HTMLElement;
-            // Remove GrapesJS data attributes
-            Array.from(htmlEl.attributes).forEach(attr => {
+            Array.from(htmlEl.attributes).forEach((attr) => {
               if (attr.name.startsWith('data-gjs') || attr.name.startsWith('data-highlightable')) {
                 htmlEl.removeAttribute(attr.name);
               }
             });
-            
-            // Remove GrapesJS classes
-            const gjsClasses = Array.from(htmlEl.classList).filter(cls => cls.startsWith('gjs-'));
-            gjsClasses.forEach(cls => htmlEl.classList.remove(cls));
+            const gjsClasses = Array.from(htmlEl.classList).filter((cls) => cls.startsWith('gjs-'));
+            gjsClasses.forEach((cls) => htmlEl.classList.remove(cls));
           });
         };
-        
         removeEditorElements(clonedContent);
-        
-        // Create a temporary container with the clean content
+
         const tempContainer = document.createElement('div');
+        tempContainer.className = 'temp-pdf-container';
         tempContainer.innerHTML = clonedContent.innerHTML;
-        
-        // Apply CSS styles to the container
+
         const styleElement = document.createElement('style');
         styleElement.textContent = `
-          /* Captured editor styles */
           ${editorStyles}
-          
-          /* PDF-specific optimizations */
+
+          /* Ensure accurate colors */
           body, * {
             -webkit-print-color-adjust: exact !important;
             color-adjust: exact !important;
             print-color-adjust: exact !important;
           }
-          
+
+          /* Allow pagination inside blocks to avoid big gaps */
+          .temp-pdf-container, .temp-pdf-container * {
+            page-break-inside: auto !important;
+            break-inside: auto !important;
+          }
+          h1, h2, h3, h4, h5, h6 { page-break-after: auto !important; break-after: auto !important; }
+          p, li { orphans: 1; widows: 1; }
+
           .temp-pdf-container {
             font-family: Arial, sans-serif;
             color: #000;
             background: white;
-            width: 8.5in;
+            width: 210mm; /* Full A4 content width; margins handled by jsPDF */
             margin: 0;
-            padding: 0.5in;
+            padding: 0;
             box-sizing: border-box;
             font-size: 12px;
             line-height: 1.4;
           }
-          
-          .temp-pdf-container * {
-            box-sizing: border-box;
-          }
+          .temp-pdf-container * { box-sizing: border-box; }
         `;
-        
-        tempContainer.className = 'temp-pdf-container';
+
         document.head.appendChild(styleElement);
         document.body.appendChild(tempContainer);
-        
-        // PDF options
+
         const options = {
-          margin: [0.5, 0.5, 0.5, 0.5] as [number, number, number, number],
+          margin: 5, // minimum margin in mm
           filename: `${resumeData?.personalInfo?.name?.replace(/\s+/g, '_') || 'Resume'}.pdf`,
           image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { 
+          html2canvas: {
             scale: 2,
             useCORS: true,
             allowTaint: true,
             backgroundColor: '#ffffff',
             scrollX: 0,
             scrollY: 0,
-            width: 816, // 8.5 inches * 96 DPI
-            height: 1056 // 11 inches * 96 DPI
           },
-          jsPDF: { 
-            unit: 'in', 
-            format: 'a4', 
+          pagebreak: { mode: ['css'] },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
             orientation: 'portrait',
-            compress: true
-          }
-        };
-        
-        // Generate PDF
+            compress: true,
+          },
+        } as const;
+
         await html2pdf().set(options).from(tempContainer).save();
-        
-        // Cleanup
-        document.body.removeChild(tempContainer);
-        document.head.removeChild(styleElement);
-        
-        // Show success message
+
         editor?.runCommand(StudioCommands.toastAdd, {
           id: 'pdf-exported',
           header: 'PDF Downloaded',
           content: 'Your resume has been downloaded as PDF successfully!',
           variant: ToastVariant.Success,
         });
-        
-        setIsExportingPDF(false);
-        
       } catch (error) {
         console.error('Error exporting PDF:', error);
-        
-        // Fallback to improved print dialog
-        console.log('Falling back to improved print dialog...');
-        
-        try {
-          // Use the improved print method as fallback
-          await improvedPrint();
-          
-        } catch (fallbackError) {
-          console.error('Improved print fallback also failed:', fallbackError);
-          
-          editor?.runCommand(StudioCommands.toastAdd, {
-            id: 'pdf-error',
-            header: 'Export Error',
-            content: 'Failed to export PDF. Please try using your browser\'s print function (Ctrl+P) and select "Save as PDF".',
-            variant: ToastVariant.Error,
-          });
-        }
-        
+        editor?.runCommand(StudioCommands.toastAdd, {
+          id: 'pdf-error',
+          header: 'Export Error',
+          content: 'Failed to export PDF. Please try again.',
+          variant: ToastVariant.Error,
+        });
+      } finally {
         setIsExportingPDF(false);
       }
     }
   };
 
-  const reloadResumeData = () => {
-    if (editor && resumeData) {
-      console.log('Reloading resume data into editor');
-      populateEditorWithResumeData(editor, resumeData);
-      
-      editor?.runCommand(StudioCommands.toastAdd, {
-        id: 'data-reloaded',
-        header: 'Data Reloaded',
-        content: 'Resume data has been refreshed in the editor',
-        variant: ToastVariant.Success,
-      });
-    }
-  };
 
   const handleTemplateSelect = (templateId: string) => {
     setSelectedTemplate(templateId);
@@ -619,44 +581,12 @@ export default function EditorPage() {
           >
             {showTemplateSelector ? 'Hide Templates' : 'Choose Template'}
           </button>
-          <button 
-            className="bg-green-600 text-white rounded px-4 py-1 hover:bg-green-700" 
-            onClick={reloadResumeData}
-            title="Reload the AI-parsed resume data"
-          >
-            Reload Data
-          </button>
-          <button className="border border-gray-300 rounded px-4 py-1 hover:bg-gray-50" onClick={getProjetData}>
-            Export Data
-          </button>
-          <button 
-            className="bg-purple-600 text-white rounded px-4 py-1 hover:bg-purple-700"
-            onClick={improvedPrint}
-            title="Print exact editor content"
-          >
-            🖨️ Print
-          </button>
-          <button 
-            className={`text-white rounded px-4 py-1 font-medium transition-colors ${
-              isExportingPDF 
-                ? 'bg-red-400 cursor-not-allowed' 
-                : 'bg-red-600 hover:bg-red-700'
-            }`}
+          <button
+            className="bg-emerald-600 text-white rounded px-4 py-1 hover:bg-emerald-700"
             onClick={exportToPDF}
-            disabled={isExportingPDF}
-            title={isExportingPDF ? 'Generating PDF...' : 'Download resume as PDF'}
+            title="Export PDF (minimal margins)"
           >
-            {isExportingPDF ? (
-              <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Generating...
-              </>
-            ) : (
-              '📄 Export PDF'
-            )}
+            Export PDF
           </button>
         </div>
       </div>
@@ -740,16 +670,16 @@ pages: [
                         type: 'canvasSidebarTop',
                         sidebarTop: {
                           rightContainer: {
-                            buttons: ({ items }) => [
-                              {
-                                id: 'improved-print',
-                                icon: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 3H6v4h12m1 5a1 1 0 0 1-1-1 1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1m-3 7H8v-5h8m3-6H5a3 3 0 0 0-3 3v6h4v4h12v-4h4v-6a3 3 0 0 0-3-3Z"/></svg>',
-                                title: 'Print exact editor content',
-                                onClick: () => improvedPrint()
-                              },
-                              ...items.filter(item => !['showImportCode', 'fullscreen'].includes(item.id))
-                            ]
-                          }
+                      buttons: ({ items }) => [
+                        {
+                          id: 'downloadPdf',
+                          attributes: { title: 'Export PDF (minimal margins)' },
+                          icon: '<svg viewBox="0 0 24 24"><path d="M18 3H6v4h12m1 5a1 1 0 0 1-1-1 1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1m-3 7H8v-5h8m3-6H5a3 3 0 0 0-3 3v6h4v4h12v-4h4v-6a3 3 0 0 0-3-3Z"/></svg>',
+                          onClick: () => exportToPDF(),
+                        },
+                        ...items.filter((item) => !['showImportCode', 'fullscreen'].includes(item.id)),
+                      ]
+                                                }
                         }
                       },
                       { type: 'canvas' },

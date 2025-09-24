@@ -34,6 +34,10 @@ export default function TemplateSelectionPage() {
     router.push('/');
   };
 
+  // Enhanced heuristic with detailed logging
+
+
+
   if (!resumeData) {
     return (
       <div className="flex h-screen items-center justify-center">
@@ -54,7 +58,7 @@ export default function TemplateSelectionPage() {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">Choose Your Resume Template</h1>
               <p className="mt-2 text-gray-600">
-                Select a professional template for <span className="font-semibold">{resumeData.personalInfo.name}</span>&apos;s resume
+                Select a professional template for <span className="font-semibold">{resumeData.personalInfo?.name}</span>&apos;s resume
               </p>
             </div>
             <button
@@ -69,28 +73,7 @@ export default function TemplateSelectionPage() {
           </div>
         </div>
 
-        {/* Resume Data Preview */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4">Resume Preview</h2>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-            <div>
-              <span className="font-medium text-gray-700">Name:</span>
-              <p className="text-gray-600">{resumeData.personalInfo.name}</p>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Experience:</span>
-              <p className="text-gray-600">{resumeData.experience?.length || 0} positions</p>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Education:</span>
-              <p className="text-gray-600">{resumeData.education?.length || 0} entries</p>
-            </div>
-            <div>
-              <span className="font-medium text-gray-700">Skills:</span>
-              <p className="text-gray-600">{resumeData.skills?.length || 0} skills</p>
-            </div>
-          </div>
-        </div>
+     
 
         {/* Template Selection */}
         <div className="bg-white rounded-lg shadow-sm">

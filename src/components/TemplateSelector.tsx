@@ -182,7 +182,7 @@ function PreviewContent({ template, isSelected }: PreviewContentProps) {
 
   if (template.id === 'ats-clean') {
     return (
-      <div className="text-[6px] leading-tight h-full overflow-hidden">
+      <div className="text-[6px] leading-tight overflow-hidden">
         {/* Header */}
         <div className="text-center mb-2">
           <div className="font-bold text-[7px] text-black">{contact.name || 'Name'}</div>
@@ -283,7 +283,7 @@ function PreviewContent({ template, isSelected }: PreviewContentProps) {
   // Two-Column Template Preview
   if (template.id === 'ats-two-column') {
     return (
-      <div className="text-[6px] leading-tight h-full overflow-hidden">
+      <div className="text-[6px] leading-tight overflow-hidden">
         {/* Header */}
         <div className="text-center mb-2 bg-gray-50 p-1 rounded">
           <div className="font-bold text-[7px] text-blue-800">{contact.name || 'Name'}</div>
@@ -379,7 +379,7 @@ function PreviewContent({ template, isSelected }: PreviewContentProps) {
   // Modern Template Preview
   if (template.id === 'ats-modern') {
     return (
-      <div className="text-[6px] leading-tight h-full overflow-hidden">
+      <div className="text-[6px] leading-tight  overflow-hidden">
         {/* Header */}
         <div className="text-center mb-2 pb-1 border-b-2 border-gray-200">
           <div className="font-bold text-[8px] text-gray-800">{contact.name || 'Name'}</div>
@@ -439,7 +439,7 @@ function PreviewContent({ template, isSelected }: PreviewContentProps) {
   // Minimal Template Preview
   if (template.id === 'ats-minimal') {
     return (
-      <div className="text-[6px] leading-tight h-full overflow-hidden">
+      <div className="text-[6px] leading-tight  overflow-hidden">
         {/* Header */}
         <div className="text-left mb-2">
           <div className="font-bold text-[7px] text-black">{contact.name || 'Name'}</div>
@@ -498,7 +498,7 @@ function PreviewContent({ template, isSelected }: PreviewContentProps) {
   // Professional Template Preview
   if (template.id === 'ats-professional') {
     return (
-      <div className="text-[6px] leading-tight h-full overflow-hidden">
+      <div className="text-[6px] leading-tight  overflow-hidden">
         {/* Header */}
         <div className="text-center mb-2 pb-1 border-b-2 border-black">
           <div className="font-bold text-[7px] text-black uppercase tracking-wide">{contact.name || 'NAME'}</div>
@@ -559,7 +559,7 @@ function PreviewContent({ template, isSelected }: PreviewContentProps) {
   // Executive Template Preview
   if (template.id === 'ats-executive') {
     return (
-      <div className="text-[6px] leading-tight h-full overflow-hidden">
+      <div className="text-[6px] leading-tight  overflow-hidden">
         {/* Header */}
         <div className="text-center mb-2 pb-2 border-b-2 border-gray-400">
           <div className="font-bold text-[8px] text-gray-800">{contact.name || 'Name'}</div>
@@ -671,7 +671,7 @@ function TemplateCard({ template, resumeData, isSelected, onSelect, onApply, onP
       onClick={onSelect}
     >
       {/* Template Preview */}
-      <div className="aspect-[8.5/11] bg-white border border-gray-200 rounded mb-3 p-2 overflow-hidden">
+      <div className="h-40 bg-white border border-gray-200 rounded mb-3 p-2 overflow-hidden">
         <PreviewContent template={template} isSelected={isSelected} />
       </div>
 
@@ -693,19 +693,7 @@ function TemplateCard({ template, resumeData, isSelected, onSelect, onApply, onP
 
         {/* Action Buttons */}
         <div className="flex gap-2 mt-3">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onSelect();
-            }}
-            className={`flex-1 px-2 py-1.5 text-xs font-medium rounded transition-colors ${
-              isSelected
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            {isSelected ? '✓ Selected' : 'Select'}
-          </button>
+         
           
           <button
             onClick={(e) => {
