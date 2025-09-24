@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import ResumeUpload from '../components/ResumeUpload';
-import ResumeForm from '../components/ResumeForm';
 import Link from 'next/link';
 import { useResume } from '../contexts/ResumeContext';
+import { useRouter } from 'next/navigation';
 
 export default function HomePage() {
-  const { resumeData } = useResume();
+  const { resumeData, setResumeData, isLoading, setIsLoading, setError } = useResume();
   const [selectedOption, setSelectedOption] = useState<'upload' | 'create' | null>(null);
+  const router = useRouter();
 
   // If resume data exists, show success state
   if (resumeData) {
@@ -130,7 +131,7 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Create New Resume */}
+              {/* Generate Resume From Student Profile */}
               <div 
                 className="bg-white rounded-2xl shadow-xl p-8 cursor-pointer hover:shadow-2xl transition-shadow duration-300 border-2 border-transparent hover:border-green-200"
                 onClick={() => setSelectedOption('create')}
@@ -143,11 +144,11 @@ export default function HomePage() {
                   </div>
                   
                   <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                    Create New Resume
+                    Generate From Student Profile
                   </h2>
                   
                   <p className="text-gray-600 mb-6">
-                    Start from scratch with our guided form. We&apos;ll ask you key questions and build a professional ATS-optimized resume for you.
+                    We will fetch your details from the configured endpoint and generate an ATS-optimized resume automatically.
                   </p>
                   
                   <div className="space-y-3">
@@ -155,24 +156,48 @@ export default function HomePage() {
                       <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      Step-by-step guidance
+                      No forms to fill
                     </div>
                     <div className="flex items-center text-sm text-green-600">
                       <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      Professional templates
+                      ATS-optimized content
                     </div>
                     <div className="flex items-center text-sm text-green-600">
                       <svg className="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                       </svg>
-                      ATS-optimized from start
+                      Choose template and download
                     </div>
                   </div>
                   
-                  <button className="mt-6 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200">
-                    Create New
+                  <button
+                    className="mt-6 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const run = async () => {
+                        try {
+                          setIsLoading(true);
+                          setError(null);
+                          const res = await fetch('/api/generate-resume', { method: 'POST' });
+                          const result = await res.json();
+                          if (!res.ok || !result.success || !result.data) {
+                            throw new Error(result?.error || 'Failed to generate resume');
+                          }
+                          setResumeData(result.data);
+                          router.push('/template-selection');
+                        } catch (err) {
+                          const msg = err instanceof Error ? err.message : 'Failed to generate resume';
+                          setError(msg);
+                        } finally {
+                          setIsLoading(false);
+                        }
+                      };
+                      run();
+                    }}
+                  >
+                    {isLoading ? 'Generating...' : 'Generate Resume'}
                   </button>
                 </div>
               </div>
@@ -198,7 +223,7 @@ export default function HomePage() {
               </div>
             </div>
           ) : (
-            /* Create New Section */
+            /* Generate Section */
             <div className="max-w-4xl mx-auto">
               <div className="bg-white rounded-2xl shadow-xl p-8">
                 <div className="flex items-center mb-6">
@@ -211,10 +236,36 @@ export default function HomePage() {
                     </svg>
                   </button>
                   <h2 className="text-2xl font-semibold text-gray-800">
-                    Create Your Resume
+                    Generate From Student Profile
                   </h2>
                 </div>
-                <ResumeForm />
+                <div className="text-center">
+                  <p className="text-gray-600 mb-4">We will fetch your details from the backend and create an ATS-friendly resume.</p>
+                  <button
+                    className={`mt-2 bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-6 rounded-lg transition-colors duration-200 ${isLoading ? 'opacity-80 cursor-not-allowed' : ''}`}
+                    onClick={async () => {
+                      try {
+                        setIsLoading(true);
+                        setError(null);
+                        const res = await fetch('/api/generate-resume', { method: 'POST' });
+                        const result = await res.json();
+                        if (!res.ok || !result.success || !result.data) {
+                          throw new Error(result?.error || 'Failed to generate resume');
+                        }
+                        setResumeData(result.data);
+                        router.push('/template-selection');
+                      } catch (err) {
+                        const msg = err instanceof Error ? err.message : 'Failed to generate resume';
+                        setError(msg);
+                      } finally {
+                        setIsLoading(false);
+                      }
+                    }}
+                    disabled={isLoading}
+                  >
+                    {isLoading ? 'Generating...' : 'Generate Resume'}
+                  </button>
+                </div>
               </div>
             </div>
           )}
