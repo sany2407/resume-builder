@@ -70,7 +70,68 @@ export default function EditorPage() {
     
     // Setup custom resume components
     setupResumeComponents(editor);
+
+    // Register a custom print command to ensure printing exactly what's in the canvas
+    // This collects the current HTML and CSS from the editor and prints with proper page setup
+    editor.Commands.add('print-resume', {
+      run(ed) {
+        try {
+          const html = ed.getHtml();
+          let css = ed.getCss() || '';
+
+          // Remove any @media print rules to prevent column collapse
+          css = css.replace(/@media\s+print\s*{[^}]*}/g, '');
+
+          const docHtml = `<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Resume</title>
+    <style>
+      /* Reset margins for print */
+      @page { size: A4; margin: 10mm; }
+      html, body { height: auto; }
+      body { background: #fff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0; }
+      /* Editor CSS */
+      ${css}
+    </style>
+  </head>
+  <body>
+    ${html}
+  </body>
+</html>`;
+
+          const printWindow = window.open('', 'PRINT', 'width=1024,height=768');
+          if (!printWindow) return;
+          printWindow.document.open();
+          printWindow.document.write(docHtml);
+          printWindow.document.close();
+          printWindow.focus();
+          // Wait for styles to apply then print
+          printWindow.onload = () => {
+            printWindow.print();
+          };
+        } catch (e) {
+          console.error('Error during print:', e);
+        }
+      },
+    });
   };
+
+  // Override Ctrl/Cmd + P to print the GrapesJS canvas content
+  useEffect(() => {
+    if (!editor) return;
+    const handler = (e: KeyboardEvent) => {
+      const isMac = navigator.platform.toUpperCase().includes('MAC');
+      if ((isMac ? e.metaKey : e.ctrlKey) && (e.key === 'p' || e.key === 'P')) {
+        e.preventDefault();
+        editor.runCommand('print-resume');
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [editor]);
   
   // Apply template when editor and selectedTemplate are both ready
   useEffect(() => {
@@ -328,7 +389,7 @@ pages: [
                           id: 'downloadPdf',
                           attributes: { title: 'Export PDF (minimal margins)' },
                           icon: '<svg viewBox="0 0 24 24"><path d="M18 3H6v4h12m1 5a1 1 0 0 1-1-1 1 1 0 0 1 1-1 1 1 0 0 1 1 1 1 1 0 0 1-1 1m-3 7H8v-5h8m3-6H5a3 3 0 0 0-3 3v6h4v4h12v-4h4v-6a3 3 0 0 0-3-3Z"/></svg>',
-                          onClick: ({ editor }) => editor.runCommand('presetPrintable:print'),
+                          onClick: ({ editor }) => editor.runCommand('print-resume'),
                         },
                         ...items.filter((item) => !['showImportCode', 'fullscreen'].includes(item.id)),
                       ]
