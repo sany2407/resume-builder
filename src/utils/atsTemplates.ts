@@ -382,7 +382,7 @@ export const atsTwoColumnTemplate: ATSTemplate = {
         
         .sidebar .section-title {
             font-size: 12pt;
-            border-bottom: 1px solid #bdc3c7;
+            border-bottom: 2px solid #3498db;
         }
         
         .experience-item, .education-item {
@@ -463,14 +463,14 @@ export const atsTwoColumnTemplate: ATSTemplate = {
         }
         
         .project-description {
-            font-size: 10pt;
+            
             color: #444444;
             line-height: 1.4;
             margin: 6px 0;
         }
         
         .project-tech {
-            font-size: 9pt;
+            font-size: 10pt;
             color: #1565c0;
             margin-top: 4px;
         }
