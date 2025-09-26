@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// Initialize Gemini AI - The client gets the API key from the environment variable `GEMINI_API_KEY`
+const ai = new GoogleGenAI({});
 
 async function fetchStudentResumeJSON() {
   const apiUrl = process.env.STUDENT_RESUME_API_URL || 'http://localhost:5000/api/v1/student/resume';
@@ -35,7 +35,7 @@ async function generateATSResumeFromProfile(profileJson: unknown) {
     throw new Error('Gemini API key not configured. Please set GEMINI_API_KEY in your environment variables.');
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  // Using the new API syntax
 
   const prompt = `
 You are an expert ATS optimization assistant. Using the provided student profile JSON, produce an ATS-optimized resume JSON strictly matching the schema below. Keep content concise, use action verbs, quantify impact where possible, and avoid fancy symbols. If a field is unavailable, use empty string for strings and empty array for arrays.
@@ -87,9 +87,16 @@ Student profile JSON:
 ${JSON.stringify(profileJson, null, 2)}
 `;
 
-  const result = await model.generateContent(prompt);
-  const response = await result.response;
-  const text = response.text();
+  const response = await ai.models.generateContent({
+    model: "gemini-2.5-flash",
+    contents: prompt,
+  });
+  
+  if (!response.text) {
+    throw new Error('No text response from AI model');
+  }
+  
+  const text = response.text;
 
   // Clean potential code fences
   let cleanedText = text.trim();

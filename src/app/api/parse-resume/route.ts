@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenAI } from '@google/genai';
 import PDFParse from 'pdf-parse';
 import mammoth from 'mammoth';
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+// Initialize Gemini AI - The client gets the API key from the environment variable `GEMINI_API_KEY`
+const ai = new GoogleGenAI({});
 
 // Helper function to extract text from different file types
 async function extractTextFromFile(buffer: Buffer, mimeType: string): Promise<string> {
@@ -39,7 +39,7 @@ async function parseResumeWithGemini(resumeText: string) {
     throw new Error('Gemini API key not configured. Please set GEMINI_API_KEY in your environment variables.');
   }
 
-  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+  // Using the new API syntax
 
   const prompt = `
     Please parse the following resume text and extract the information into a structured JSON format. 
@@ -145,9 +145,16 @@ async function parseResumeWithGemini(resumeText: string) {
   `;
 
   try {
-    const result = await model.generateContent(prompt);
-    const response = await result.response;
-    const text = response.text();
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+    
+    if (!response.text) {
+      throw new Error('No text response from AI model');
+    }
+    
+    const text = response.text;
     
     console.log('Raw AI Response:', text); // Debug logging
     
