@@ -64,7 +64,7 @@ export default function HomePage() {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-800 mb-4">
-            AI-Powered ATS-Friendly Resume Builder
+            Square Bridge AI-Powered Resume Builder
           </h1>
           <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto">
             Create a professional, ATS-optimized resume that passes through applicant tracking systems.
